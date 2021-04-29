@@ -76,7 +76,7 @@ h.figure.Children(1).DataAspectRatio = [1 1 1];
 
 % Setup videowriter object
 if exportVideo  
-   v = VideoWriter('C:\Users\edwar\Documents\School\ROB542\actuatorDynamics\Assignment 1\Video.mp4', 'MPEG-4');
+   v = VideoWriter('C:\Users\edwar\Documents\School\ROB542\actuatorDynamics\Assignment 3 1-b\Video.mp4', 'MPEG-4');
 %    v = VideoWriter('puckAnimation.avi');
    v.FrameRate = FPS;
    

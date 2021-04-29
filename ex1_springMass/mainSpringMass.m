@@ -10,7 +10,7 @@ X0 = [1 ... % position (m)
 p.m  = 1;  % mass (kg)
 p.c  = 1;  % damper (N*s/m)
 p.k  = 20; % spring (N/m)
-p.F  = 0;  % force (N)
+p.F  = -10;  % force (N)
 p.l0 = 1;  % Spring rest length (m)
 
 % Simulate the system

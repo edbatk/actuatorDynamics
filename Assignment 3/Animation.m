@@ -1,4 +1,4 @@
-function paddleAnimation(p,t,X,exportVideo,playbackRate)
+function Animation(p,t,X,exportVideo,playbackRate)
 % Paddle Animation 
 % Input
 %   p: Simulation constants
@@ -22,7 +22,6 @@ addpath(fullfile(pwd,'..', 'visualization'))
 block_h = 0.25;
 actuatorObj = CubeClass([1, block_h]);
 toeObj = CubeClass([1, block_h]);
-loadObj = CubeClass([1, block_h]);
 springObj = SpringClass;
 
 % Create a figure handle
@@ -44,15 +43,6 @@ actuatorObj.colors =     [.1 .7 1;
                          
 actuatorObj.plot
 toeObj.plot
-loadObj.colors =         [1 1 .0;
-                          1 1 .0;
-                          1 1 .0;
-                          1 1 .0;
-                          1 1 .0;
-                          1 1 .0;
-                          1 1 .0;
-                          1 1 .0];
-loadObj.plot
 springObj.plot
 
 % Set the ceiling position, but offset it up because of the radius of
@@ -90,16 +80,11 @@ for t_plt = t(1):playbackRate*1.0/FPS:t(end)
     x_state = interp1(t',X',t_plt);
     xa_pos = x_state(1);
     xt_pos = x_state(3);
-    xl_pos = x_state(5);
 
     % Set axis limits (These will respect the aspect ratio set above)
     h.figure.Children(1).XLim = [-5, 5];
-    h.figure.Children(1).YLim = [-2, 8];
+    h.figure.Children(1).YLim = [-5, 10];
     h.figure.Children(1).ZLim = [-1.0, 1.0];
-
-    % Set the load position
-    loadObj.resetFrame
-    loadObj.globalMove(SE3([0, xl_pos + p.l0 + block_h, 0]));
     
     % Set the toe position
     toeObj.resetFrame
@@ -117,7 +102,6 @@ for t_plt = t(1):playbackRate*1.0/FPS:t(end)
     % Update data
     actuatorObj.updatePlotData
     toeObj.updatePlotData
-    loadObj.updatePlotData
     springObj.updatePlotData
     
     if exportVideo %Draw as fast as possible for video export

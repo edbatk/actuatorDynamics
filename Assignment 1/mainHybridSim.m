@@ -2,53 +2,95 @@
 % paddle. This is to illustrate hybrid simulation using event functions
 % Author:  Kevin Green 2021
 
-% Simulation System Constants
-p.ma  = 1; % mass (kg) of the paddle
-p.F = -1; % Constant external force (N) gravity
-p.e = 0.9; % Coefficient of restitution (0,1]
-p.d_wall = 10.0; % Distance to the wall (m)
-p.k = 1; % Stiffness (N/m)
-p.c = .1; % Damping (Ns/m)
-p.l0 = 1;
-p.ml = 1;
-p.mt = 1;
+clear;
 
-% Initial state conditions
-X0 = [ 0, ...        % actuator position (m)
-       0, ...        % actuator velocity (m/s)
-       p.l0, ...     % toe position (m)
-       0, ...        % toe velocity (m/s)
-       p.l0 + 1, ... % load position (m)
+X0 = [ 0, ...       % actuator position (m)
+       0, ...       % actuator velocity (m/s)
+       0, ...       % toe position (m) DATUMMM
+       0, ...       % toe velocity (m/s)
+       3, ...       % load position (m)
        0];          % load velocity (m/s)
 
-% Paddle Trajectory Constants
-c.freq = 0; % frequency of paddle oscillation (rad/s)
-c.amp = 0.2; % Amplitude of paddle motion (m)
+% Simulation System Constants
+p.ma = 1; % mass (kg) of the actuator
+p.k = 100; % Stiffness (N/m)
+p.c = 1; % Damping (Ns/m)
+p.l0 = 2;
+p.ml = 0.1;
+p.mt = .1;
+p.m2 = p.ml + p.mt;
 
-% Bind the trajectory constants to paddle motion function
-paddleFun = @(t) paddleMotion(t,c);
+c.Kp = 250;          % position error feedback gain (N/m)
+c.Kd = 50;           % velocity error feedback gain (N/(m/s))
+c.amp = 1;
+c.freq = 3;
 
-% Simulate the system
-[t_vec,X_vec] = paddleSim(X0,p,paddleFun);
+controller_fun = @(t,X) PDTrajectoryController(t,X,c,'Position'); 
+     
+% % Simulate the system
+[t_vec1,X_vec1] = paddleSim2(X0,p,controller_fun);
+P.ml = 1;
+[t_vec2,X_vec2] = paddleSim2(X0,p,controller_fun);
+p.ml = 3;
+[t_vec3,X_vec3] = paddleSim2(X0,p,controller_fun);
+p.ml = 5;
+[t_vec4,X_vec4] = paddleSim2(X0,p,controller_fun);
 
 % Plot the position of the puck, paddle and ceiling
 figure;
-subplot(2,1,1) 
-plot(t_vec,X_vec(1,:),'-');
+subplot(2,2,1) 
+plot(t_vec1,X_vec1(1,:),'--');
 hold on
-plot(t_vec,paddleFun(t_vec));
-plot(t_vec, p.d_wall*ones(size(t_vec)));
+plot(t_vec1,X_vec1(3,:)+p.l0,'--');
+plot(t_vec1,X_vec1(5,:)+p.l0,'--');
+title("Positions: Load Mass = 0.1 kg");
 xlabel('Time (s)')
 ylabel('Position (m)')
-legend('Ball Position','Paddle Position','Ceiling Position')
-% Plot the Velocity of the mass
-subplot(2,1,2)
-plot(t_vec,X_vec(2,:),'-');
-title('Mass Response')
+legend('Actuator Position','Toe Position','Load Position')
+
+subplot(2,2,2) 
+plot(t_vec1,X_vec2(1,:),'--');
+hold on
+plot(t_vec1,X_vec2(3,:)+p.l0,'--');
+plot(t_vec1,X_vec2(5,:)+p.l0,'--');
+title("Positions: Load Mass = 1 kg");
 xlabel('Time (s)')
-ylabel('Velocity (m)')
+ylabel('Position (m)')
+legend('Actuator Position','Toe Position','Load Position')
+
+subplot(2,2,3) 
+plot(t_vec1,X_vec3(1,:),'--');
+hold on
+plot(t_vec1,X_vec3(3,:)+p.l0,'--');
+plot(t_vec1,X_vec3(5,:)+p.l0,'--');
+title("Positions: Load Mass = 3 kg");
+xlabel('Time (s)')
+ylabel('Position (m)')
+legend('Actuator Position','Toe Position','Load Position')
+
+subplot(2,2,4) 
+plot(t_vec1,X_vec4(1,:),'--');
+hold on
+plot(t_vec1,X_vec4(3,:)+p.l0,'--');
+plot(t_vec1,X_vec4(5,:)+p.l0,'--');
+title("Positions: Load Mass = 5 kg");
+xlabel('Time (s)')
+ylabel('Position (m)')
+legend('Actuator Position','Toe Position','Load Position')
+
+% figure
+% % Plot the Velocity of the mass
+% subplot(2,1,2)
+% plot(t_vec,X_vec(2,:),'-');
+% hold on;
+% plot(t_vec,X_vec(4,:),'-');
+% plot(t_vec,X_vec(6,:),'-');
+% title('Velocities')
+% xlabel('Time (s)')
+% ylabel('Velocity (m/s)')
+% legend('Actuator Velocity', 'Toe Velocity', 'Load Velocity')
 
 % Animate the mass
-% exportVideo = false;
-% playbackRate = 2;
-% paddleAnimation(p,t_vec,X_vec,paddleFun,exportVideo,playbackRate);
+exportVideo = true;
+playbackRate = 2;
+paddleAnimation(p,t_vec4,X_vec4,exportVideo,playbackRate);
